@@ -3,6 +3,12 @@
 import { useState, KeyboardEvent } from "react";
 import { useChatContext } from "@/src/components/context/ChatContext";
 
+const SendIcon = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" />
+  </svg>
+);
+
 export default function MessageInput() {
   const { sendMessage, nextStranger, status, sendTyping } = useChatContext();
   const [text, setText] = useState("");
@@ -29,7 +35,7 @@ export default function MessageInput() {
   };
 
   return (
-    <div className="border-t border-zinc-800 bg-zinc-950 p-4">
+    <div className="border-t border-border bg-background/80 glass p-4">
       <div className="flex gap-3 items-center max-w-screen-xl mx-auto">
         <input
           type="text"
@@ -41,23 +47,24 @@ export default function MessageInput() {
             isConnected
               ? "Type a message... (Enter to send)"
               : status === "searching"
-              ? "Connecting..."
+              ? "Connecting to a stranger..."
               : "Not connected"
           }
-          className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white text-sm outline-none placeholder:text-zinc-600 focus:border-indigo-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 rounded-2xl border border-border bg-card px-5 py-3 text-foreground text-sm outline-none placeholder:text-muted-foreground focus:border-violet-500/70 focus:ring-2 focus:ring-violet-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         />
 
         <button
           onClick={handleSend}
           disabled={!isConnected || !text.trim()}
-          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm text-white font-medium hover:bg-indigo-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="rounded-2xl gradient-brand p-3 text-white hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+          title="Send"
         >
-          Send
+          <SendIcon />
         </button>
 
         <button
           onClick={nextStranger}
-          className="rounded-xl bg-zinc-800 border border-zinc-700 px-5 py-3 text-sm text-zinc-300 font-medium hover:bg-zinc-700 transition-colors"
+          className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground font-medium hover:text-foreground hover:bg-muted transition-all hidden sm:block"
         >
           Next →
         </button>

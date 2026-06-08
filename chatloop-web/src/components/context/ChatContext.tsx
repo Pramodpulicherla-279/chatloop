@@ -5,15 +5,15 @@ import { useChat, MessageType, ChatStatus, StrangerProfile } from "@/src/hooks/u
 import { useProfile, Profile } from "@/src/hooks/useProfile";
 
 type ChatContextType = {
-  // profile
   profile: Profile;
   updateProfile: (updates: Partial<Profile>) => void;
-  // chat
   roomId: string;
   messages: MessageType[];
   status: ChatStatus;
   isTyping: boolean;
   onlineCount: number;
+  maleCount: number;
+  femaleCount: number;
   strangerProfile: StrangerProfile | null;
   sendMessage: (text: string) => void;
   nextStranger: () => void;
@@ -28,7 +28,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { profile, updateProfile, loaded } = useProfile();
   const chat = useChat(profile);
 
-  if (!loaded) return null; // wait for localStorage to hydrate
+  if (!loaded) return null;
 
   return (
     <ChatContext.Provider value={{ profile, updateProfile, ...chat }}>

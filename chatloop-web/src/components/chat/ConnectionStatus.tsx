@@ -2,20 +2,36 @@
 
 import { useChatContext } from "@/src/components/context/ChatContext";
 
+const genderBadge = (gender: string) => {
+  if (gender === "male")
+    return <span className="rounded-full border border-blue-500/40 bg-blue-500/15 px-2 py-0.5 text-xs font-semibold text-blue-400">♂ Male</span>;
+  if (gender === "female")
+    return <span className="rounded-full border border-pink-500/40 bg-pink-500/15 px-2 py-0.5 text-xs font-semibold text-pink-400">♀ Female</span>;
+  if (gender === "other")
+    return <span className="rounded-full border border-violet-500/40 bg-violet-500/15 px-2 py-0.5 text-xs font-semibold text-violet-400">⚧ Other</span>;
+  return null;
+};
+
+const avatarGradient = (gender: string) =>
+  gender === "male"
+    ? "from-blue-600 to-blue-400"
+    : gender === "female"
+    ? "from-pink-600 to-pink-400"
+    : "from-violet-600 to-indigo-400";
+
 export default function ConnectionStatus() {
   const { status, isTyping, nextStranger, strangerProfile } = useChatContext();
 
-  // Typing indicator (highest priority)
   if (status === "connected" && isTyping) {
     return (
-      <div className="border-b border-zinc-800 bg-zinc-900/60 px-6 py-2.5">
-        <p className="text-sm text-indigo-400 flex items-center gap-2">
+      <div className="border-b border-border bg-card/60 glass px-5 py-2.5">
+        <p className="text-sm text-violet-400 flex items-center gap-2">
           <span className="flex gap-1">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:0ms]" />
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:150ms]" />
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:300ms]" />
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:300ms]" />
           </span>
-          <span className="font-medium text-indigo-300">
+          <span className="font-semibold text-violet-300">
             {strangerProfile?.username ?? "Stranger"}
           </span>
           &nbsp;is typing...
@@ -24,38 +40,41 @@ export default function ConnectionStatus() {
     );
   }
 
-  // Connected — always show stranger bar (with fallback if profile missing)
   if (status === "connected") {
     const name    = strangerProfile?.username || "Stranger";
-    const age     = strangerProfile?.age || null;
+    const age     = strangerProfile?.age     || null;
+    const gender  = strangerProfile?.gender  || "";
     const country = strangerProfile?.country || null;
 
     return (
-      <div className="border-b border-zinc-800 bg-zinc-900/60 px-6 py-2.5">
+      <div className="border-b border-border bg-card/60 glass px-5 py-3">
         <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div className="h-7 w-7 rounded-full bg-indigo-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
+          <div
+            className={`h-8 w-8 rounded-xl bg-gradient-to-br ${avatarGradient(gender)} flex items-center justify-center text-white text-xs font-black shadow-md shrink-0`}
+          >
             {name.charAt(0).toUpperCase()}
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-white">{name}</span>
+            <span className="text-sm font-bold text-foreground">{name}</span>
+
+            {genderBadge(gender)}
 
             {age && (
-              <span className="text-xs text-zinc-400 bg-zinc-800 rounded-full px-2 py-0.5">
+              <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                 {age} yrs
               </span>
             )}
 
             {country && (
-              <span className="text-xs text-zinc-400 bg-zinc-800 rounded-full px-2 py-0.5">
+              <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                 📍 {country}
               </span>
             )}
 
-            <span className="text-xs text-green-500 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-              connected
+            <span className="text-xs text-emerald-500 flex items-center gap-1 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Connected
             </span>
           </div>
         </div>
@@ -63,15 +82,17 @@ export default function ConnectionStatus() {
     );
   }
 
-  // All other states
   if (status === "stranger_left") {
     return (
-      <div className="border-b border-zinc-800 bg-zinc-900/60 px-6 py-2.5">
+      <div className="border-b border-border bg-card/60 glass px-5 py-3">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-orange-400">Stranger has disconnected.</p>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-orange-400" />
+            <p className="text-sm text-orange-400 font-medium">Stranger has left the chat.</p>
+          </div>
           <button
             onClick={nextStranger}
-            className="text-sm text-indigo-400 hover:text-indigo-300 underline"
+            className="text-sm font-semibold text-violet-400 hover:text-violet-300 transition-colors"
           >
             Find new stranger →
           </button>
@@ -82,10 +103,10 @@ export default function ConnectionStatus() {
 
   if (status === "searching") {
     return (
-      <div className="border-b border-zinc-800 bg-zinc-900/60 px-6 py-2.5">
-        <p className="text-sm text-yellow-400 flex items-center gap-2">
+      <div className="border-b border-border bg-card/60 glass px-5 py-3">
+        <p className="text-sm text-yellow-400 flex items-center gap-2 font-medium">
           <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
-          Looking for a stranger...
+          Searching for a stranger...
         </p>
       </div>
     );
@@ -93,8 +114,8 @@ export default function ConnectionStatus() {
 
   if (status === "disconnected") {
     return (
-      <div className="border-b border-zinc-800 bg-zinc-900/60 px-6 py-2.5">
-        <p className="text-sm text-red-400 flex items-center gap-2">
+      <div className="border-b border-border bg-card/60 glass px-5 py-3">
+        <p className="text-sm text-red-400 flex items-center gap-2 font-medium">
           <span className="h-2 w-2 rounded-full bg-red-500" />
           Connection lost. Reconnecting...
         </p>
@@ -102,11 +123,10 @@ export default function ConnectionStatus() {
     );
   }
 
-  // idle
   return (
-    <div className="border-b border-zinc-800 bg-zinc-900/60 px-6 py-2.5">
-      <p className="text-sm text-zinc-500">
-        Press <strong className="text-zinc-300">Next</strong> to find a stranger
+    <div className="border-b border-border bg-card/60 glass px-5 py-3">
+      <p className="text-sm text-muted-foreground">
+        Press <strong className="text-foreground font-semibold">Next →</strong> to find a stranger
       </p>
     </div>
   );

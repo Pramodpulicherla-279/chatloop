@@ -21,6 +21,7 @@ export type ChatStatus =
 export type StrangerProfile = {
   username: string;
   age: string;
+  gender: string;
   country: string;
 };
 
@@ -30,41 +31,47 @@ export function useChat(profile: Profile) {
   const [status, setStatus] = useState<ChatStatus>("idle");
   const [isTyping, setIsTyping] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
+  const [maleCount, setMaleCount] = useState(0);
+  const [femaleCount, setFemaleCount] = useState(0);
   const [strangerProfile, setStrangerProfile] = useState<StrangerProfile | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileRef = useRef(profile);
 
-  // Keep ref always up to date
   useEffect(() => {
     profileRef.current = profile;
     if (socket.connected && profile.username) {
       socket.emit("set-profile", profile);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile.username, profile.age, profile.country]);
+  }, [profile.username, profile.age, profile.gender, profile.country]);
 
   useEffect(() => {
     socket.connect();
 
     socket.on("connect", () => {
       setStatus("searching");
-      // Emit profile first, then find-match on next tick
-      // (no callback needed — both go in same event loop flush, profile arrives first)
       socket.emit("set-profile", profileRef.current);
       socket.emit("find-match");
     });
 
-    socket.on("online-count", (data: { count: number }) => {
-      setOnlineCount(data.count);
-    });
+    socket.on(
+      "online-count",
+      (data: { count: number; maleCount: number; femaleCount: number }) => {
+        setOnlineCount(data.count);
+        setMaleCount(data.maleCount ?? 0);
+        setFemaleCount(data.femaleCount ?? 0);
+      }
+    );
 
-    socket.on("match-found", (data: { roomId: string; strangerProfile: StrangerProfile }) => {
-      console.log("Matched! Stranger:", data.strangerProfile);
-      setRoomId(data.roomId);
-      setStrangerProfile(data.strangerProfile);
-      setStatus("connected");
-      setMessages([]);
-    });
+    socket.on(
+      "match-found",
+      (data: { roomId: string; strangerProfile: StrangerProfile }) => {
+        setRoomId(data.roomId);
+        setStrangerProfile(data.strangerProfile);
+        setStatus("connected");
+        setMessages([]);
+      }
+    );
 
     socket.on("receive-message", (data: { message: string }) => {
       setMessages((prev) => [
@@ -162,6 +169,8 @@ export function useChat(profile: Profile) {
     status,
     isTyping,
     onlineCount,
+    maleCount,
+    femaleCount,
     strangerProfile,
     sendMessage,
     nextStranger,
