@@ -8,13 +8,13 @@ import MessageList from "@/src/components/chat/MessageList";
 export default function ChatPage() {
   return (
     <ChatProvider>
-      <div className="flex flex-col h-screen bg-zinc-950">
+      <div className="flex flex-col h-screen bg-background overflow-hidden">
         <ChatHeader />
 
         <div className="flex flex-1 overflow-hidden">
           <ChatSidebar />
 
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <main className="flex flex-1 flex-col overflow-hidden">
             <ConnectionStatus />
 
             <div className="flex flex-1 overflow-hidden">
@@ -22,7 +22,7 @@ export default function ChatPage() {
             </div>
 
             <MessageInput />
-          </div>
+          </main>
         </div>
       </div>
     </ChatProvider>

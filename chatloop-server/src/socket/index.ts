@@ -4,29 +4,57 @@ import { activeRooms } from "./rooms";
 import { SOCKET_EVENTS } from "./events";
 import crypto from "crypto";
 
-const userProfiles = new Map<string, { username: string; age: string; country: string }>();
+type UserProfile = {
+  username: string;
+  age: string;
+  gender: string;
+  country: string;
+};
 
-function getProfile(socketId: string) {
-  return userProfiles.get(socketId) ?? {
-    username: `User${Math.floor(1000 + Math.random() * 9000)}`,
-    age: "",
-    country: "",
-  };
+const userProfiles = new Map<string, UserProfile>();
+
+function getProfile(socketId: string): UserProfile {
+  return (
+    userProfiles.get(socketId) ?? {
+      username: `User${Math.floor(1000 + Math.random() * 9000)}`,
+      age: "",
+      gender: "",
+      country: "",
+    }
+  );
 }
 
 export function initializeSocket(io: Server) {
+  const broadcastStats = () => {
+    const count = io.sockets.sockets.size;
+    let maleCount = 0;
+    let femaleCount = 0;
+    for (const p of userProfiles.values()) {
+      if (p.gender === "male") maleCount++;
+      else if (p.gender === "female") femaleCount++;
+    }
+    io.emit("online-count", { count, maleCount, femaleCount });
+  };
 
-  const broadcastOnlineCount = () => {
-    io.emit("online-count", { count: io.sockets.sockets.size });
+  const leaveRoom = (socket: Socket, roomId: string, notifyPartner = true) => {
+    const room = activeRooms.get(roomId);
+    if (!room) return;
+    if (notifyPartner) {
+      const partnerId =
+        room.user1 === socket.id ? room.user2 : room.user1;
+      io.to(partnerId).emit("stranger-disconnected");
+    }
+    activeRooms.delete(roomId);
+    socket.leave(roomId);
   };
 
   io.on("connection", (socket: Socket) => {
     console.log("User Connected:", socket.id);
-    broadcastOnlineCount();
+    broadcastStats();
 
-    socket.on("set-profile", (profile: { username: string; age: string; country: string }) => {
+    socket.on("set-profile", (profile: UserProfile) => {
       userProfiles.set(socket.id, profile);
-      console.log(`Profile saved [${socket.id}]: ${profile.username}`);
+      broadcastStats();
     });
 
     socket.on(SOCKET_EVENTS.FIND_MATCH, () => {
@@ -34,7 +62,6 @@ export function initializeSocket(io: Server) {
         const partnerId = waitingUsers.shift()!;
         const partnerSocket = io.sockets.sockets.get(partnerId);
 
-        // Partner disconnected while waiting — put self in queue
         if (!partnerSocket) {
           waitingUsers.push(socket.id);
           return;
@@ -50,17 +77,26 @@ export function initializeSocket(io: Server) {
           user2: partnerId,
         });
 
-        const myProfile      = getProfile(socket.id);
+        const myProfile = getProfile(socket.id);
         const partnerProfile = getProfile(partnerId);
 
-        console.log(`Match: [${myProfile.username}] <-> [${partnerProfile.username}] in room ${roomId}`);
+        console.log(
+          `Match: [${myProfile.username}] <-> [${partnerProfile.username}] in room ${roomId}`
+        );
 
-        socket.emit(SOCKET_EVENTS.MATCH_FOUND, { roomId, strangerProfile: partnerProfile });
-        partnerSocket.emit(SOCKET_EVENTS.MATCH_FOUND, { roomId, strangerProfile: myProfile });
-
+        socket.emit(SOCKET_EVENTS.MATCH_FOUND, {
+          roomId,
+          strangerProfile: partnerProfile,
+        });
+        partnerSocket.emit(SOCKET_EVENTS.MATCH_FOUND, {
+          roomId,
+          strangerProfile: myProfile,
+        });
       } else {
         waitingUsers.push(socket.id);
-        console.log(`Waiting: ${socket.id} — queue length: ${waitingUsers.length}`);
+        console.log(
+          `Waiting: ${socket.id} — queue length: ${waitingUsers.length}`
+        );
       }
     });
 
@@ -69,8 +105,7 @@ export function initializeSocket(io: Server) {
     });
 
     socket.on(SOCKET_EVENTS.NEXT_STRANGER, ({ roomId }) => {
-      socket.leave(roomId);
-      activeRooms.delete(roomId);
+      leaveRoom(socket, roomId, true);
       socket.emit("searching");
     });
 
@@ -78,16 +113,30 @@ export function initializeSocket(io: Server) {
       socket.to(roomId).emit("typing");
     });
 
-    socket.on("report-user", ({ roomId, reason }: { roomId: string; reason: string }) => {
-      console.log(`Report in room ${roomId}: ${reason}`);
-    });
+    socket.on(
+      "report-user",
+      ({ roomId, reason }: { roomId: string; reason: string }) => {
+        console.log(`Report in room ${roomId}: ${reason}`);
+      }
+    );
 
     socket.on("disconnect", () => {
       const index = waitingUsers.indexOf(socket.id);
       if (index !== -1) waitingUsers.splice(index, 1);
+
+      for (const [roomId, room] of activeRooms.entries()) {
+        if (room.user1 === socket.id || room.user2 === socket.id) {
+          const partnerId =
+            room.user1 === socket.id ? room.user2 : room.user1;
+          io.to(partnerId).emit("stranger-disconnected");
+          activeRooms.delete(roomId);
+          break;
+        }
+      }
+
       userProfiles.delete(socket.id);
       console.log("User Disconnected:", socket.id);
-      broadcastOnlineCount();
+      broadcastStats();
     });
   });
 }
