@@ -79,6 +79,7 @@ export function useChat(profile: Profile) {
   const [strangerProfile, setStrangerProfile] = useState<StrangerProfile | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileRef = useRef(profile);
+  const isRepairReconnect = useRef(false);
 
   // Restore last chat from localStorage on first render
   useEffect(() => {
@@ -109,6 +110,12 @@ export function useChat(profile: Profile) {
     socket.connect();
 
     socket.on("connect", () => {
+      if (isRepairReconnect.current) {
+        // Just re-register the profile — don't search for a new stranger
+        isRepairReconnect.current = false;
+        socket.emit("set-profile", profileRef.current);
+        return;
+      }
       setStatus("searching");
       socket.emit("set-profile", profileRef.current);
       socket.emit("find-match");
@@ -218,15 +225,10 @@ export function useChat(profile: Profile) {
   }, []);
 
   const reconnect = useCallback(() => {
-    // Hard-reset the socket connection to recover from server glitches
+    // Repair-only reconnect — restores socket without searching for a new stranger
+    isRepairReconnect.current = true;
     socket.disconnect();
-    setStatus("searching");
-    setRoomId("");
-    setStrangerProfile(null);
-    // Small delay so the disconnect fully closes before reconnecting
-    setTimeout(() => {
-      socket.connect();
-    }, 400);
+    setTimeout(() => socket.connect(), 400);
   }, []);
 
   const sendTyping = useCallback(() => {
