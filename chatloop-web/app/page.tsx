@@ -5,28 +5,31 @@ import ConnectionStatus from "@/src/components/chat/ConnectionStatus";
 import MessageInput from "@/src/components/chat/MessageInput";
 import MessageList from "@/src/components/chat/MessageList";
 import BeforeUnloadGuard from "@/src/components/chat/BeforeUnloadGuard";
+import VerificationGate from "@/src/components/verification/VerificationGate";
 
 export default function ChatPage() {
   return (
-    <ChatProvider>
-      <BeforeUnloadGuard />
-      <div className="flex flex-col h-dvh overflow-hidden bg-background">
-        <ChatHeader />
+    <VerificationGate>
+      <ChatProvider>
+        <BeforeUnloadGuard />
+        <div className="flex flex-col h-dvh overflow-hidden bg-background">
+          <ChatHeader />
 
-        <div className="flex flex-1 overflow-hidden min-h-0">
-          <ChatSidebar />
+          <div className="flex flex-1 overflow-hidden min-h-0">
+            <ChatSidebar />
 
-          <main className="flex flex-1 flex-col overflow-hidden min-h-0">
-            <ConnectionStatus />
+            <main className="flex flex-1 flex-col overflow-hidden min-h-0">
+              <ConnectionStatus />
 
-            <div className="flex flex-1 overflow-hidden min-h-0">
-              <MessageList />
-            </div>
+              <div className="flex flex-1 overflow-hidden min-h-0">
+                <MessageList />
+              </div>
 
-            <MessageInput />
-          </main>
+              <MessageInput />
+            </main>
+          </div>
         </div>
-      </div>
-    </ChatProvider>
+      </ChatProvider>
+    </VerificationGate>
   );
 }
