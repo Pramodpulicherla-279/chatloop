@@ -172,6 +172,8 @@ export function useChat(profile: Profile) {
     });
 
     socket.on("disconnect", () => {
+      // Ignore disconnect events triggered by our own repair reconnect
+      if (isRepairReconnect.current) return;
       setStatus("disconnected");
     });
 
@@ -225,10 +227,14 @@ export function useChat(profile: Profile) {
   }, []);
 
   const reconnect = useCallback(() => {
-    // Repair-only reconnect — restores socket without searching for a new stranger
-    isRepairReconnect.current = true;
-    socket.disconnect();
-    setTimeout(() => socket.connect(), 400);
+    if (socket.connected) {
+      // Socket is alive — just re-sync profile with server, nothing else
+      socket.emit("set-profile", profileRef.current);
+    } else {
+      // Socket is genuinely down — reconnect silently (no status change, no find-match)
+      isRepairReconnect.current = true;
+      socket.connect();
+    }
   }, []);
 
   const sendTyping = useCallback(() => {
