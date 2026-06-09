@@ -20,6 +20,7 @@ type ChatContextType = {
   startChat: () => void;
   sendTyping: () => void;
   reportUser: (reason: string) => void;
+  reconnect: () => void;
 };
 
 const ChatContext = createContext<ChatContextType | null>(null);

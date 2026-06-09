@@ -35,7 +35,7 @@ export default function MessageInput() {
   };
 
   return (
-    <div className="border-t border-border bg-background/80 glass p-4">
+    <div className="border-t border-border bg-background/80 glass p-2 sm:p-4">
       <div className="flex gap-3 items-center max-w-screen-xl mx-auto">
         <input
           type="text"

@@ -14,31 +14,52 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ChatLoop — Chat with Strangers Online",
+  verification: {
+    google: "VTqWRMkklKs75XRZxKn0qFUoEQi",
+  },
+  title: "ChatLoop — Random Chat with Strangers Online | Free & Anonymous",
   description:
-    "Connect with random strangers instantly. Free anonymous chat platform — no sign-up required. Meet new people from around the world.",
+    "Chat with random strangers instantly for free. No sign-up required. Meet new people, make friends, and have fun conversations. Anonymous stranger chat — connect with anyone worldwide.",
   keywords: [
-    "chat with strangers",
     "random chat",
-    "anonymous chat",
+    "chat with strangers",
     "stranger chat",
+    "random talk",
+    "stranger talk",
+    "anonymous chat",
     "online chat",
-    "meet new people",
+    "free chat",
+    "meet strangers online",
+    "talk to strangers",
+    "random video chat alternative",
+    "omegle alternative",
+    "chat random",
+    "stranger meetup",
+    "make friends online",
     "chatloop",
   ],
   openGraph: {
-    title: "ChatLoop — Chat with Strangers Online",
+    title: "ChatLoop — Random Chat with Strangers Online",
     description:
-      "Connect with random strangers instantly. Free anonymous chat — no sign-up required.",
+      "Chat with random strangers instantly. Free & anonymous — no sign-up required. Meet new people from around the world.",
     type: "website",
     siteName: "ChatLoop",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ChatLoop — Chat with Strangers Online",
-    description: "Free anonymous chat with strangers. No sign-up needed.",
+    title: "ChatLoop — Random Chat with Strangers Online",
+    description:
+      "Free anonymous chat with strangers. No sign-up needed. Meet new people instantly.",
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-snippet": -1 },
+  },
+  alternates: {
+    canonical: "https://chatloop-six.vercel.app",
+  },
 };
 
 export default function RootLayout({
@@ -49,10 +70,30 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "ChatLoop",
+              description:
+                "Free anonymous random chat with strangers. No sign-up required.",
+              applicationCategory: "CommunicationApplication",
+              operatingSystem: "Web",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+            }),
+          }}
+        />
+      </head>
+      <body
+        className="flex flex-col bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
