@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   verification: {
-    google: "VTqWRMkklKs75XRZxKn0qFUoEQi",
+    google: "VTqWRMkklKs75XRZxKn0qFUoEQi-F_Hg2ckQFnCcSs8",
   },
   title: "ChatLoop — Random Chat with Strangers Online | Free & Anonymous",
   description:
