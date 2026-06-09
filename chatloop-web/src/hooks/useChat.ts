@@ -25,6 +25,49 @@ export type StrangerProfile = {
   country: string;
 };
 
+const MESSAGES_KEY = "chatloop-last-messages";
+const STRANGER_KEY = "chatloop-last-stranger";
+
+function saveMessages(messages: MessageType[]) {
+  try {
+    localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
+  } catch {}
+}
+
+function loadMessages(): MessageType[] {
+  try {
+    const raw = localStorage.getItem(MESSAGES_KEY);
+    if (!raw) return [];
+    const parsed: MessageType[] = JSON.parse(raw);
+    return parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
+  } catch {
+    return [];
+  }
+}
+
+function saveStranger(profile: StrangerProfile | null) {
+  try {
+    if (profile) localStorage.setItem(STRANGER_KEY, JSON.stringify(profile));
+    else localStorage.removeItem(STRANGER_KEY);
+  } catch {}
+}
+
+function loadStranger(): StrangerProfile | null {
+  try {
+    const raw = localStorage.getItem(STRANGER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearChat() {
+  try {
+    localStorage.removeItem(MESSAGES_KEY);
+    localStorage.removeItem(STRANGER_KEY);
+  } catch {}
+}
+
 export function useChat(profile: Profile) {
   const [roomId, setRoomId] = useState("");
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -36,6 +79,23 @@ export function useChat(profile: Profile) {
   const [strangerProfile, setStrangerProfile] = useState<StrangerProfile | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileRef = useRef(profile);
+
+  // Restore last chat from localStorage on first render
+  useEffect(() => {
+    const savedMessages = loadMessages();
+    const savedStranger = loadStranger();
+    if (savedMessages.length > 0) {
+      setMessages(savedMessages);
+      setStrangerProfile(savedStranger);
+      // Show as stranger_left so user sees old chat but knows session ended
+      setStatus("stranger_left");
+    }
+  }, []);
+
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) saveMessages(messages);
+  }, [messages]);
 
   useEffect(() => {
     profileRef.current = profile;
@@ -66,8 +126,11 @@ export function useChat(profile: Profile) {
     socket.on(
       "match-found",
       (data: { roomId: string; strangerProfile: StrangerProfile }) => {
+        // New stranger found — clear previous chat
+        clearChat();
         setRoomId(data.roomId);
         setStrangerProfile(data.strangerProfile);
+        saveStranger(data.strangerProfile);
         setStatus("connected");
         setMessages([]);
       }
@@ -137,6 +200,8 @@ export function useChat(profile: Profile) {
   );
 
   const nextStranger = useCallback(() => {
+    // Clear stored chat before searching for a new one
+    clearChat();
     if (roomId) socket.emit("next-stranger", { roomId });
     setMessages([]);
     setStatus("searching");
@@ -150,6 +215,18 @@ export function useChat(profile: Profile) {
     setStatus("searching");
     socket.emit("set-profile", profileRef.current);
     socket.emit("find-match");
+  }, []);
+
+  const reconnect = useCallback(() => {
+    // Hard-reset the socket connection to recover from server glitches
+    socket.disconnect();
+    setStatus("searching");
+    setRoomId("");
+    setStrangerProfile(null);
+    // Small delay so the disconnect fully closes before reconnecting
+    setTimeout(() => {
+      socket.connect();
+    }, 400);
   }, []);
 
   const sendTyping = useCallback(() => {
@@ -177,5 +254,6 @@ export function useChat(profile: Profile) {
     startChat,
     sendTyping,
     reportUser,
+    reconnect,
   };
 }

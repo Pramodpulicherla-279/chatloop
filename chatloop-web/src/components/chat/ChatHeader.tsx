@@ -7,6 +7,16 @@ import { useTheme } from "@/src/components/theme/ThemeProvider";
 import ReportModal from "./ReportModal";
 import ProfileModal from "@/src/components/profile/ProfileModal";
 
+const RefreshIcon = ({ spinning }: { spinning: boolean }) => (
+  <svg
+    className={`h-4 w-4 transition-transform ${spinning ? "animate-spin" : ""}`}
+    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round"
+      d="M4 4v5h.582M20 20v-5h-.581M5.635 19A9 9 0 104.582 9H4" />
+  </svg>
+);
+
 function formatCount(n: number): string {
   if (n >= 1000) return (n / 1000).toFixed(1) + "k";
   return n.toString();
@@ -28,11 +38,19 @@ const MoonIcon = () => (
 );
 
 export default function ChatHeader() {
-  const { status, nextStranger, onlineCount, maleCount, femaleCount, profile, updateProfile } =
+  const { status, nextStranger, reconnect, onlineCount, maleCount, femaleCount, profile, updateProfile } =
     useChatContext();
   const { theme, toggleTheme } = useTheme();
   const [showReport, setShowReport] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [reconnecting, setReconnecting] = useState(false);
+
+  const handleReconnect = () => {
+    if (reconnecting) return;
+    setReconnecting(true);
+    reconnect();
+    setTimeout(() => setReconnecting(false), 2000);
+  };
 
   const avatarLetter = profile.username ? profile.username.charAt(0).toUpperCase() : "?";
   const displayName = profile.username || "Set username";
@@ -47,7 +65,7 @@ export default function ChatHeader() {
   return (
     <>
       <header className="border-b border-border dark:bg-zinc-950/80 bg-white/80 glass sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center justify-between max-w-screen-xl mx-auto px-4 sm:px-6 py-3 gap-3">
+        <div className="flex items-center justify-between max-w-screen-xl mx-auto px-3 sm:px-6 py-2 sm:py-3 gap-2 sm:gap-3">
 
           {/* Logo */}
           <Link href="/" className="text-xl font-black tracking-tight shrink-0">
@@ -56,21 +74,21 @@ export default function ChatHeader() {
           </Link>
 
           {/* Stats pills */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             {/* Online */}
-            <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 sm:px-3 sm:py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-xs font-bold text-emerald-400">{formatCount(onlineCount)}</span>
               <span className="text-xs text-emerald-600 hidden sm:inline">online</span>
             </div>
             {/* Male */}
-            <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1.5">
-              <span className="text-xs">♂</span>
+            <div className="flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-1 sm:px-3 sm:py-1.5">
+              <span className="text-xs text-blue-400">♂</span>
               <span className="text-xs font-bold text-blue-400">{formatCount(maleCount)}</span>
             </div>
             {/* Female */}
-            <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1.5">
-              <span className="text-xs">♀</span>
+            <div className="flex items-center gap-1 rounded-full border border-pink-500/30 bg-pink-500/10 px-2 py-1 sm:px-3 sm:py-1.5">
+              <span className="text-xs text-pink-400">♀</span>
               <span className="text-xs font-bold text-pink-400">{formatCount(femaleCount)}</span>
             </div>
           </div>
@@ -84,6 +102,16 @@ export default function ChatHeader() {
               className="rounded-xl border border-border p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
             >
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+            </button>
+
+            {/* Reconnect */}
+            <button
+              onClick={handleReconnect}
+              disabled={reconnecting}
+              title="Reconnect to server"
+              className="rounded-xl border border-border p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-all disabled:opacity-50"
+            >
+              <RefreshIcon spinning={reconnecting} />
             </button>
 
             {status === "connected" && (

@@ -24,7 +24,7 @@ export default function ConnectionStatus() {
 
   if (status === "connected" && isTyping) {
     return (
-      <div className="border-b border-border bg-card/60 glass px-5 py-2.5">
+      <div className="border-b border-border bg-card/60 glass px-4 py-2">
         <p className="text-sm text-violet-400 flex items-center gap-2">
           <span className="flex gap-1">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
@@ -47,7 +47,7 @@ export default function ConnectionStatus() {
     const country = strangerProfile?.country || null;
 
     return (
-      <div className="border-b border-border bg-card/60 glass px-5 py-3">
+      <div className="border-b border-border bg-card/60 glass px-4 py-2">
         <div className="flex items-center gap-3">
           <div
             className={`h-8 w-8 rounded-xl bg-gradient-to-br ${avatarGradient(gender)} flex items-center justify-center text-white text-xs font-black shadow-md shrink-0`}
@@ -84,7 +84,7 @@ export default function ConnectionStatus() {
 
   if (status === "stranger_left") {
     return (
-      <div className="border-b border-border bg-card/60 glass px-5 py-3">
+      <div className="border-b border-border bg-card/60 glass px-4 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-orange-400" />
@@ -103,7 +103,7 @@ export default function ConnectionStatus() {
 
   if (status === "searching") {
     return (
-      <div className="border-b border-border bg-card/60 glass px-5 py-3">
+      <div className="border-b border-border bg-card/60 glass px-4 py-2">
         <p className="text-sm text-yellow-400 flex items-center gap-2 font-medium">
           <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
           Searching for a stranger...
@@ -114,7 +114,7 @@ export default function ConnectionStatus() {
 
   if (status === "disconnected") {
     return (
-      <div className="border-b border-border bg-card/60 glass px-5 py-3">
+      <div className="border-b border-border bg-card/60 glass px-4 py-2">
         <p className="text-sm text-red-400 flex items-center gap-2 font-medium">
           <span className="h-2 w-2 rounded-full bg-red-500" />
           Connection lost. Reconnecting...
@@ -124,7 +124,7 @@ export default function ConnectionStatus() {
   }
 
   return (
-    <div className="border-b border-border bg-card/60 glass px-5 py-3">
+    <div className="border-b border-border bg-card/60 glass px-4 py-2">
       <p className="text-sm text-muted-foreground">
         Press <strong className="text-foreground font-semibold">Next →</strong> to find a stranger
       </p>

@@ -13,7 +13,7 @@ const REASONS = [
 ];
 
 export default function ReportModal({ onClose }: { onClose: () => void }) {
-  const { reportUser, nextStranger } = useChatContext();
+  const { reportUser } = useChatContext();
   const [selected, setSelected] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -21,10 +21,7 @@ export default function ReportModal({ onClose }: { onClose: () => void }) {
     if (!selected) return;
     reportUser(selected);
     setSubmitted(true);
-    setTimeout(() => {
-      onClose();
-      nextStranger();
-    }, 1500);
+    setTimeout(() => onClose(), 1500);
   };
 
   return (
@@ -36,7 +33,7 @@ export default function ReportModal({ onClose }: { onClose: () => void }) {
               ✓
             </div>
             <p className="text-foreground font-bold text-lg">Report submitted</p>
-            <p className="text-muted-foreground text-sm">Finding a new stranger...</p>
+            <p className="text-muted-foreground text-sm">Thank you for keeping ChatLoop safe.</p>
           </div>
         ) : (
           <>
