@@ -20,25 +20,7 @@ const avatarGradient = (gender: string) =>
     : "from-violet-600 to-indigo-400";
 
 export default function ConnectionStatus() {
-  const { status, isTyping, nextStranger, strangerProfile } = useChatContext();
-
-  if (status === "connected" && isTyping) {
-    return (
-      <div className="border-b border-border bg-card/60 glass px-4 py-2">
-        <p className="text-sm text-violet-400 flex items-center gap-2">
-          <span className="flex gap-1">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:300ms]" />
-          </span>
-          <span className="font-semibold text-violet-300">
-            {strangerProfile?.username ?? "Stranger"}
-          </span>
-          &nbsp;is typing...
-        </p>
-      </div>
-    );
-  }
+  const { status, nextStranger, strangerProfile } = useChatContext();
 
   if (status === "connected") {
     const name    = strangerProfile?.username || "Stranger";
