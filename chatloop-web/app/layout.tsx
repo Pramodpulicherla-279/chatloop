@@ -75,17 +75,24 @@ export default function RootLayout({
     >
       <head>
         <meta name="monetag" content="51ffd7f6e124b42ef7581114b35c3d47" />
+
+        {/* Ad script — separate tag, correct type */}
         <script
-          src="https://quge5.com/88/tag.min.js" 
-          data-zone="248123" 
-          async 
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="248123"
+          async
           data-cfasync="false"
+        />
+
+        {/* JSON-LD structured data — own tag so Google actually reads it */}
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               name: "ChatLoop",
+              url: "https://chatloop-six.vercel.app",
               description:
                 "Free anonymous random chat with strangers. No sign-up required.",
               applicationCategory: "CommunicationApplication",
