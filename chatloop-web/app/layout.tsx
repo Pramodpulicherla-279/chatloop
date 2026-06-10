@@ -77,13 +77,8 @@ export default function RootLayout({
         <meta name="monetag" content="51ffd7f6e124b42ef7581114b35c3d47" />
 
         {/* Ad script — separate tag, correct type */}
-        <script
-          src="https://quge5.com/88/tag.min.js"
-          data-zone="248123"
-          async
-          data-cfasync="false"
-        />
-
+        <script src="https://5gvci.com/act/files/tag.min.js?z=11127322" data-cfasync="false" async></script>
+        
         {/* JSON-LD structured data — own tag so Google actually reads it */}
         <script
           type="application/ld+json"
