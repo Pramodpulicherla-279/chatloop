@@ -77,8 +77,34 @@ export default function RootLayout({
         <meta name="monetag" content="51ffd7f6e124b42ef7581114b35c3d47" />
 
         <script src="https://5gvci.com/act/files/tag.min.js?z=11127322" data-cfasync="false" async></script>
-        <script src="https://quge5.com/88/tag.min.js" data-zone="248123" async data-cfasync="false"></script>
+        {/* <script src="https://quge5.com/88/tag.min.js" data-zone="248123" async data-cfasync="false"></script> */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){
+      s.dataset.zone='11128860',
+      s.src='https://n6wxm.com/vignette.min.js'
+    })(
+      [document.documentElement, document.body]
+        .filter(Boolean)
+        .pop()
+        .appendChild(document.createElement('script'))
+    )`,
+          }}
+        />
 
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(s){
+      s.dataset.zone='11127337';
+      s.src='https://n6wxm.com/vignette.min.js';
+    })(
+      [document.documentElement, document.body]
+        .filter(Boolean)
+        .pop()
+        .appendChild(document.createElement('script'))
+    );`,
+          }}
+        />
 
         {/* JSON-LD structured data — own tag so Google actually reads it */}
         <script
