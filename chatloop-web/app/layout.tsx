@@ -77,13 +77,6 @@ export default function RootLayout({
       <head>
         <meta name="monetag" content="51ffd7f6e124b42ef7581114b35c3d47" />
 
-        {/* Ad script — separate tag, correct type */}
-        <Script
-          src="https://5gvci.com/act/files/tag.min.js?z=11127322"
-          strategy="afterInteractive"
-          data-cfasync="false"
-        />
-        
         {/* JSON-LD structured data — own tag so Google actually reads it */}
         <script
           type="application/ld+json"
@@ -106,8 +99,14 @@ export default function RootLayout({
         className="flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
+        <Script
+          src="https://5gvci.com/act/files/tag.min.js?z=11127322"
+          strategy="afterInteractive"
+          data-cfasync="false"
+        />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
 }
+
