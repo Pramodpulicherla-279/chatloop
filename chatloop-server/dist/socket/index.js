@@ -49,10 +49,17 @@ function initializeSocket(io) {
             broadcastStats();
         });
         socket.on(events_1.SOCKET_EVENTS.FIND_MATCH, () => {
+            // Always remove self from queue first — prevents self-match when the
+            // user re-searches while their own ID is still sitting in the queue
+            // (e.g. clicking Next while already in "searching" state).
+            const selfIndex = queue_1.default.indexOf(socket.id);
+            if (selfIndex !== -1)
+                queue_1.default.splice(selfIndex, 1);
             if (queue_1.default.length > 0) {
                 const partnerId = queue_1.default.shift();
                 const partnerSocket = io.sockets.sockets.get(partnerId);
-                if (!partnerSocket) {
+                // Safety guard: never match a socket with itself
+                if (partnerId === socket.id || !partnerSocket) {
                     queue_1.default.push(socket.id);
                     return;
                 }
@@ -85,6 +92,10 @@ function initializeSocket(io) {
             socket.to(roomId).emit(events_1.SOCKET_EVENTS.RECEIVE_MESSAGE, { message });
         });
         socket.on(events_1.SOCKET_EVENTS.NEXT_STRANGER, ({ roomId }) => {
+            // Also purge from queue in case the user was still waiting
+            const idx = queue_1.default.indexOf(socket.id);
+            if (idx !== -1)
+                queue_1.default.splice(idx, 1);
             leaveRoom(socket, roomId, true);
             socket.emit("searching");
         });
